@@ -17,7 +17,7 @@ public class PlatformGUI : MonoBehaviour
     private bool editorIos = false;
     private bool editorWebgl = false;
 
-    void Awake()
+    void Start()
     {
         if (Application.isEditor)
         {
