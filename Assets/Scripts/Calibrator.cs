@@ -11,6 +11,7 @@ public class Calibrator : MonoBehaviour
 
     private Transform cameraTransform;
     public ARTrackedImage trackedImage;
+    private Coroutine calibration;
 
     void Start()
     {
@@ -21,8 +22,8 @@ public class Calibrator : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyUp(KeyCode.C))
-            ProcessTrackedImageChange();
+        //if (Input.GetKeyUp(KeyCode.C))
+        //    ProcessTrackedImageChange();
 
         //Debug.DrawRay(cameraTransform.position, cameraTransform.forward, Color.blue);
         Debug.DrawRay(cameraTransform.position, arSessionOrigin.transform.forward, Color.blue);
@@ -72,7 +73,7 @@ public class Calibrator : MonoBehaviour
         //float horizontalAxis = Vector3.SignedAngle(fromVector, toVector, Vector3.forward);
         //cameraMover.Rotate(new Vector3(horizontalAxis, verticalAxis, 0), Space.World);
 
-        StartCoroutine(LerpToRotation2());
+        calibration = StartCoroutine(LerpToRotation2());
     }
 
     IEnumerator LerpToRotation()
@@ -112,7 +113,7 @@ public class Calibrator : MonoBehaviour
             Debug.DrawRay(cameraTransform.position, toVector, Color.red);
 
             Quaternion offset = Quaternion.FromToRotation(fromVector, arSessionOrigin.transform.forward);
-            Debug.Log("offset: " + offset.eulerAngles);
+            //Debug.Log("offset: " + offset.eulerAngles);
             Vector3 shiftedToVector = offset * toVector;
             float angle = Vector3.Angle(arSessionOrigin.transform.forward, shiftedToVector);
             Debug.DrawLine(cameraTransform.position, cameraTransform.position + shiftedToVector / 2, Color.red);
@@ -130,5 +131,11 @@ public class Calibrator : MonoBehaviour
             arSessionOrigin.transform.rotation = Quaternion.LookRotation(newDirection);
             yield return null;
         }
+    }
+
+    public void StopCalibration()
+    {
+        if (calibration != null)
+            StopCoroutine(calibration);
     }
 }
