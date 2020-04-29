@@ -553,6 +553,36 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &367640224
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 367640225}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &367640225
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 367640224}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.030800035, y: 1, z: 0.02427307}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &390022125
 GameObject:
   m_ObjectHideFlags: 0
@@ -1049,7 +1079,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 514218404}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.51683086, y: 0.37622213, z: 0.8951775}
+  m_LocalPosition: {x: 0, y: 0, z: 1.1}
   m_LocalScale: {x: 0.10000002, y: 0.10000002, z: 0.1}
   m_Children: []
   m_Father: {fileID: 1508858017}
@@ -1996,7 +2026,7 @@ Transform:
   - {fileID: 501659941}
   - {fileID: 1730817259}
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1066393074
 GameObject:
@@ -2814,14 +2844,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1508858012}
-  m_LocalRotation: {x: 0.2508188, y: 0.9325158, z: -0.15302871, w: 0.20996761}
+  m_LocalRotation: {x: 0, y: 0.9848078, z: 0, w: 0.17364825}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 514218406}
   m_Father: {fileID: 1602320317}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 23, y: 160, z: 26}
+  m_LocalEulerAnglesHint: {x: 0, y: 160, z: 0}
 --- !u!1 &1512353424
 GameObject:
   m_ObjectHideFlags: 0
@@ -3642,6 +3672,7 @@ MonoBehaviour:
   trackedImageManager: {fileID: 1602320318}
   cameraMover: {fileID: 1066393076}
   calibrationReference: {fileID: 1813053561}
+  strategy: 0
   trackedImage: {fileID: 514218405}
 --- !u!1001 &2082092457
 PrefabInstance:

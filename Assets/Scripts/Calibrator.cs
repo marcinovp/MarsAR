@@ -8,6 +8,10 @@ public class Calibrator : MonoBehaviour
     [SerializeField] private ARTrackedImageManager trackedImageManager;
     [SerializeField] private CameraMovementLimiter cameraMover;
     [SerializeField] private Transform calibrationReference;
+    public int strategy;
+
+    [Header("Debug")]
+    public bool debug;
 
     private Transform cameraTransform;
     public ARTrackedImage trackedImage;
@@ -22,10 +26,13 @@ public class Calibrator : MonoBehaviour
 
     void Update()
     {
-        //session origin forward
-        Debug.DrawRay(arSessionOrigin.transform.position, arSessionOrigin.transform.forward, Color.yellow);
-        //ku detekovanemu targetu
-        Debug.DrawLine(cameraTransform.position, trackedImage.transform.position, Color.red);
+        if (debug)
+        {
+            //session origin forward
+            Debug.DrawRay(arSessionOrigin.transform.position, arSessionOrigin.transform.forward, Color.yellow);
+            //ku detekovanemu targetu
+            Debug.DrawLine(cameraTransform.position, trackedImage.transform.position, Color.red);
+        }
     }
 
     private void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs eventArgs)
@@ -36,20 +43,20 @@ public class Calibrator : MonoBehaviour
         {
             trackedImage = plane;
             wasChange = true;
-            Debug.Log("Added image, count: " + eventArgs.added.Count);
+            Log("Added image, count: " + eventArgs.added.Count);
         }
 
         foreach (var plane in eventArgs.updated)
         {
             wasChange = true;
-            Debug.Log("Changed image, count: " + eventArgs.updated.Count);
+            Log("Changed image, count: " + eventArgs.updated.Count);
         }
 
         foreach (var plane in eventArgs.removed)
         {
             trackedImage = null;
             wasChange = true;
-            Debug.Log("Removed image, count: " + eventArgs.removed.Count);
+            Log("Removed image, count: " + eventArgs.removed.Count);
         }
 
         //if (wasChange)
@@ -63,39 +70,47 @@ public class Calibrator : MonoBehaviour
 
     public void ProcessTrackedImageChange()
     {
-        //Vector3 fromVector = trackedImage.transform.position - cameraTransform.position;
-        //Vector3 toVector = calibrationReference.position - cameraTransform.position;
-        //Quaternion lookTo = Quaternion.FromToRotation(fromVector, toVector);
-        //cameraMover.Rotate(lookTo);
-
-        //float verticalAxis = Vector3.SignedAngle(fromVector, toVector, Vector3.up);
-        //float horizontalAxis = Vector3.SignedAngle(fromVector, toVector, Vector3.forward);
-        //cameraMover.Rotate(new Vector3(horizontalAxis, verticalAxis, 0), Space.World);
-
-        calibration = StartCoroutine(LerpToRotation());
+        switch (strategy)
+        {
+            case 0:
+                calibration = StartCoroutine(LerpToRotation());
+                break;
+            case 1:
+                calibration = StartCoroutine(LerpToRotation2());
+                break;
+            default:
+                break;
+        }
     }
 
+    // funguje na 100%, nulova uhlova chyba
     IEnumerator LerpToRotation()
     {
         Vector3 fromVector = trackedImage.transform.position - cameraTransform.position;
         Vector3 toVector = calibrationReference.position - cameraTransform.position;
         Quaternion fromRotation = Quaternion.LookRotation(fromVector);
         Quaternion toRotation = Quaternion.LookRotation(toVector);
-
-        //Quaternion.LookRotation
+        toRotation = toRotation * Quaternion.Inverse(fromRotation);
+        Quaternion startingRotation = arSessionOrigin.trackablesParent.rotation;
+        
         float startTime = Time.time;
         float lerp = 0;
-        float duration = 1;
-        //cameraMover.Rotate(lookTo);
+        float duration = .6f;
+
         while (lerp < 1)
         {
-            Quaternion lookTo = Quaternion.Slerp(fromRotation, toRotation, lerp);
-            arSessionOrigin.transform.rotation = lookTo;
+            Quaternion lookTo = Quaternion.Slerp(Quaternion.identity, toRotation, lerp);
+            arSessionOrigin.transform.rotation = lookTo * startingRotation;
             yield return null;
             lerp = (Time.time - startTime) / duration;
         }
-        Quaternion lookTo2 = Quaternion.Slerp(fromRotation, toRotation, 1);
-        arSessionOrigin.transform.rotation = lookTo2;
+
+        arSessionOrigin.transform.rotation = toRotation * startingRotation;
+        
+        Vector3 fromVector2 = trackedImage.transform.position - cameraTransform.position;
+        Vector3 toVector2 = calibrationReference.position - cameraTransform.position;
+        float errorAngle = Vector3.Angle(fromVector2, toVector2);
+        Log("Uhlova chyba: " + errorAngle);
     }
 
     // funguje na 100% ale dlho to trva, niekedy chodi dookola
@@ -115,15 +130,18 @@ public class Calibrator : MonoBehaviour
 
             Quaternion offset = Quaternion.FromToRotation(fromVector, toVector);
 
-            //Debug.Log(string.Format("fromVector: {1}, offset: {0}, offset size: {2}", offset.eulerAngles, fromVector.ToString("G3"), Vector3.Angle(fromVector, toVector)));
+            //Log(string.Format("fromVector: {1}, offset: {0}, offset size: {2}", offset.eulerAngles, fromVector.ToString("G3"), Vector3.Angle(fromVector, toVector)));
             Vector3 shiftedToVector = offset * arSessionOrigin.transform.forward;
             float angle = Vector3.Angle(arSessionOrigin.transform.forward, shiftedToVector);
 
             // uplne cielovy vektor - offsetnuty
             Debug.DrawLine(cameraTransform.position, cameraTransform.position + shiftedToVector / 3, Color.green);
 
-            if (angle < 1)
+            if (angle < .5f)
+            {
+                Log("Uhlova chyba: " + angle);
                 yield break;
+            }
 
             // The step size is equal to speed times frame time.
             float singleStep = speed * Time.deltaTime;
@@ -140,5 +158,11 @@ public class Calibrator : MonoBehaviour
     {
         if (calibration != null)
             StopCoroutine(calibration);
+    }
+
+    private void Log(string message)
+    {
+        if (debug)
+            Debug.Log(message);
     }
 }
