@@ -22,11 +22,10 @@ public class Calibrator : MonoBehaviour
 
     void Update()
     {
-        //if (Input.GetKeyUp(KeyCode.C))
-        //    ProcessTrackedImageChange();
-
-        //Debug.DrawRay(cameraTransform.position, cameraTransform.forward, Color.blue);
-        Debug.DrawRay(cameraTransform.position, arSessionOrigin.transform.forward, Color.blue);
+        //session origin forward
+        Debug.DrawRay(arSessionOrigin.transform.position, arSessionOrigin.transform.forward, Color.yellow);
+        //ku detekovanemu targetu
+        Debug.DrawLine(cameraTransform.position, trackedImage.transform.position, Color.red);
     }
 
     private void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs eventArgs)
@@ -73,7 +72,7 @@ public class Calibrator : MonoBehaviour
         //float horizontalAxis = Vector3.SignedAngle(fromVector, toVector, Vector3.forward);
         //cameraMover.Rotate(new Vector3(horizontalAxis, verticalAxis, 0), Space.World);
 
-        calibration = StartCoroutine(LerpToRotation2());
+        calibration = StartCoroutine(LerpToRotation());
     }
 
     IEnumerator LerpToRotation()
@@ -86,7 +85,7 @@ public class Calibrator : MonoBehaviour
         //Quaternion.LookRotation
         float startTime = Time.time;
         float lerp = 0;
-        float duration = 3;
+        float duration = 1;
         //cameraMover.Rotate(lookTo);
         while (lerp < 1)
         {
@@ -99,24 +98,29 @@ public class Calibrator : MonoBehaviour
         arSessionOrigin.transform.rotation = lookTo2;
     }
 
+    // funguje na 100% ale dlho to trva, niekedy chodi dookola
     IEnumerator LerpToRotation2()
     {
         float speed = Mathf.PI * .5f;
 
         while (true)
         {
+            //od kamere ku targetu
             Vector3 fromVector = trackedImage.transform.position - cameraTransform.position;
-
-
+            
+            //od kamere ku kalibracnemu cielu
             Vector3 toVector = calibrationReference.position - cameraTransform.position;
 
-            Debug.DrawRay(cameraTransform.position, toVector, Color.red);
+            //Debug.DrawRay(cameraTransform.position, toVector, Color.red);
 
-            Quaternion offset = Quaternion.FromToRotation(fromVector, arSessionOrigin.transform.forward);
-            //Debug.Log("offset: " + offset.eulerAngles);
-            Vector3 shiftedToVector = offset * toVector;
+            Quaternion offset = Quaternion.FromToRotation(fromVector, toVector);
+
+            //Debug.Log(string.Format("fromVector: {1}, offset: {0}, offset size: {2}", offset.eulerAngles, fromVector.ToString("G3"), Vector3.Angle(fromVector, toVector)));
+            Vector3 shiftedToVector = offset * arSessionOrigin.transform.forward;
             float angle = Vector3.Angle(arSessionOrigin.transform.forward, shiftedToVector);
-            Debug.DrawLine(cameraTransform.position, cameraTransform.position + shiftedToVector / 2, Color.red);
+
+            // uplne cielovy vektor - offsetnuty
+            Debug.DrawLine(cameraTransform.position, cameraTransform.position + shiftedToVector / 3, Color.green);
 
             if (angle < 1)
                 yield break;
@@ -126,8 +130,7 @@ public class Calibrator : MonoBehaviour
 
             // Rotate the forward vector towards the target direction by one step
             Vector3 newDirection = Vector3.RotateTowards(arSessionOrigin.transform.forward, shiftedToVector, singleStep, 0.0f);
-
-            Debug.DrawRay(cameraTransform.position, shiftedToVector, Color.green);
+            
             arSessionOrigin.transform.rotation = Quaternion.LookRotation(newDirection);
             yield return null;
         }

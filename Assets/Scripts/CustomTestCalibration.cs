@@ -5,6 +5,8 @@ using UnityEngine;
 public class CustomTestCalibration : MonoBehaviour
 {
     public bool active;
+    public bool makePauses;
+    public float timeLimit = 2;
     public Calibrator calibrator;
     public Transform arSessionOrigin;
     public Transform arCamera;
@@ -13,7 +15,7 @@ public class CustomTestCalibration : MonoBehaviour
     private List<Quaternion> originRotations;
     private List<Quaternion> cameraRotations;
     private List<Quaternion> detectedTargetRelativeDirections;
-    
+
     [Header("Output")]
     public int originIndex;
     public int cameraIndex;
@@ -63,13 +65,17 @@ public class CustomTestCalibration : MonoBehaviour
     public IEnumerator CalibrationTest1()
     {
         float startTime = Time.time;
-        bool totalSuccess = true;
-        for (int k = 0; k < originRotations.Count; k++)
+        int successCount = 0;
+        int totalCount = 0;
+
+        for (int k = originIndex; k < originRotations.Count; k++)
         {
             for (int j = 0; j < cameraRotations.Count; j++)
             {
                 for (int i = 0; i < detectedTargetRelativeDirections.Count; i++)
                 {
+                    totalCount++;
+
                     originIndex = k;
                     cameraIndex = j;
                     targetIndex = i;
@@ -78,6 +84,8 @@ public class CustomTestCalibration : MonoBehaviour
                     arCamera.localRotation = cameraRotations[j];
                     SetDetectedTargetPosition(detectedTargetRelativeDirections[i]);
 
+                    if (makePauses)
+                        yield return new WaitForSeconds(1f);
 
                     calibrator.ProcessTrackedImageChange();
 
@@ -88,19 +96,23 @@ public class CustomTestCalibration : MonoBehaviour
                     {
                         calibrator.StopCalibration();
                         Debug.LogError(string.Format("Fail kalibracie pri origin: {2}, camera: {1}, target relative direction: {0}", i, j, k));
-                        totalSuccess = false;
                     }
+                    else
+                        successCount++;
+
+                    if (makePauses)
+                        yield return new WaitForSeconds(.5f);
                 }
             }
         }
 
-        Debug.Log(string.Format("CalibrationTest1 result: {0}\nTotal time: {1}", totalSuccess ? "Success" : "FAIL", Time.time - startTime));
+        Debug.Log(string.Format("CalibrationTest1 result: {0}\nTotal time: {1:0.0}\nSuccessful: {2}/{3}", 
+            totalCount == successCount ? "Success" : "FAIL", Time.time - startTime, successCount, totalCount));
         yield return null;
     }
 
     private IEnumerator WaitForCalibrationFinish()
     {
-        float timeLimit = 2;
         float startTime = Time.time;
         Vector3 lastAngle = arCamera.eulerAngles;
 

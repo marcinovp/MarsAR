@@ -998,7 +998,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 501659940}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ca32d5926fea0c44683a9210bcf05148, type: 3}
   m_Name: 
@@ -1049,7 +1049,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 514218404}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 1.1000004}
+  m_LocalPosition: {x: -0.51683086, y: 0.37622213, z: 0.8951775}
   m_LocalScale: {x: 0.10000002, y: 0.10000002, z: 0.1}
   m_Children: []
   m_Father: {fileID: 1508858017}
@@ -1883,6 +1883,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   active: 1
+  makePauses: 0
+  timeLimit: 3
   calibrator: {fileID: 2075240462}
   arSessionOrigin: {fileID: 1602320317}
   arCamera: {fileID: 1508858017}
@@ -2148,7 +2150,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1143901993}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ca32d5926fea0c44683a9210bcf05148, type: 3}
   m_Name: 
@@ -2812,14 +2814,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1508858012}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.2508188, y: 0.9325158, z: -0.15302871, w: 0.20996761}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 514218406}
   m_Father: {fileID: 1602320317}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 23, y: 160, z: 26}
 --- !u!1 &1512353424
 GameObject:
   m_ObjectHideFlags: 0
@@ -3115,7 +3117,7 @@ GameObject:
   m_Layer: 0
   m_Name: AR Session Origin
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
