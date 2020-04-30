@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 
-public class CameraMovementLimiter : MonoBehaviour
+public class CameraMovementDriver : MonoBehaviour
 {
     [SerializeField] private bool active = true;
     [SerializeField] private ARSessionOrigin arSessionOrigin;
@@ -12,10 +12,20 @@ public class CameraMovementLimiter : MonoBehaviour
     public Vector3 cameraPosition;
 
     private Transform cameraTransform;
+    private Transform originTransform;
+    private Transform cameraPivotTransform;
+    private Vector3 cameraArmOffset;
 
     private void Start()
     {
         cameraTransform = arSessionOrigin.camera.transform;
+        originTransform = arSessionOrigin.transform;
+        cameraPivotTransform = cameraTransform.parent;
+
+        cameraArmOffset = cameraTransform.localPosition;
+        //cameraArmOffset = Quaternion.Inverse(cameraTransform.localRotation) * cameraArmOffset;
+
+        cameraTransform.localPosition = Vector3.zero;
     }
 
     private void Update()
@@ -28,10 +38,14 @@ public class CameraMovementLimiter : MonoBehaviour
         if (!active)
             return;
 
-        Vector3 correction = -cameraTransform.position;
-        arSessionOrigin.transform.Translate(correction, Space.World);
+        //Vector3 correction = -cameraTransform.localPosition;
+        //arSessionOrigin.transform.Translate(correction, Space.World);
 
-        totalCorrected += correction;
+        //totalCorrected += correction;
+
+        //cameraTransform.localPosition = cameraTransform.localRotation * cameraArmOffset;
+
+        cameraTransform.localPosition = cameraTransform.localRotation * cameraArmOffset - cameraArmOffset;
     }
 
     public void Rotate(Quaternion rotation)

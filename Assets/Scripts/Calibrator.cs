@@ -6,7 +6,7 @@ public class Calibrator : MonoBehaviour
 {
     [SerializeField] private ARSessionOrigin arSessionOrigin;
     [SerializeField] private ARTrackedImageManager trackedImageManager;
-    [SerializeField] private CameraMovementLimiter cameraMover;
+    [SerializeField] private CameraMovementDriver cameraMover;
     [SerializeField] private Transform calibrationReference;
     public int strategy;
 
@@ -86,30 +86,40 @@ public class Calibrator : MonoBehaviour
     // funguje na 100%, nulova uhlova chyba
     IEnumerator LerpToRotation()
     {
-        Vector3 fromVector = trackedImage.transform.position - cameraTransform.position;
-        Vector3 toVector = calibrationReference.position - cameraTransform.position;
-        Quaternion fromRotation = Quaternion.LookRotation(fromVector);
-        Quaternion toRotation = Quaternion.LookRotation(toVector);
-        toRotation = toRotation * Quaternion.Inverse(fromRotation);
-        Quaternion startingRotation = arSessionOrigin.trackablesParent.rotation;
-        
-        float startTime = Time.time;
-        float lerp = 0;
+        float errorAngle = float.PositiveInfinity;
         float duration = .6f;
 
-        while (lerp < 1)
+        for (int i = 0; i < 3; i++)
         {
-            Quaternion lookTo = Quaternion.Slerp(Quaternion.identity, toRotation, lerp);
-            arSessionOrigin.transform.rotation = lookTo * startingRotation;
-            yield return null;
-            lerp = (Time.time - startTime) / duration;
+            Vector3 fromVector = trackedImage.transform.position - cameraTransform.position;
+            Vector3 toVector = calibrationReference.position - cameraTransform.position;
+            Quaternion fromRotation = Quaternion.LookRotation(fromVector);
+            Quaternion toRotation = Quaternion.LookRotation(toVector);
+            toRotation = toRotation * Quaternion.Inverse(fromRotation);
+            Quaternion startingRotation = arSessionOrigin.trackablesParent.rotation;
+
+            float startTime = Time.time;
+            float lerp = 0;
+
+            while (lerp < 1)
+            {
+                Quaternion lookTo = Quaternion.Slerp(Quaternion.identity, toRotation, lerp);
+                arSessionOrigin.transform.rotation = lookTo * startingRotation;
+                yield return null;
+                lerp = (Time.time - startTime) / duration;
+            }
+
+            arSessionOrigin.transform.rotation = toRotation * startingRotation;
+
+            Vector3 fromVector2 = trackedImage.transform.position - cameraTransform.position;
+            Vector3 toVector2 = calibrationReference.position - cameraTransform.position;
+            errorAngle = Vector3.Angle(fromVector2, toVector2);
+            duration = duration / 2;
+
+            if (errorAngle < 0.5f)
+                break;
         }
 
-        arSessionOrigin.transform.rotation = toRotation * startingRotation;
-        
-        Vector3 fromVector2 = trackedImage.transform.position - cameraTransform.position;
-        Vector3 toVector2 = calibrationReference.position - cameraTransform.position;
-        float errorAngle = Vector3.Angle(fromVector2, toVector2);
         Log("Uhlova chyba: " + errorAngle);
     }
 
@@ -122,7 +132,7 @@ public class Calibrator : MonoBehaviour
         {
             //od kamere ku targetu
             Vector3 fromVector = trackedImage.transform.position - cameraTransform.position;
-            
+
             //od kamere ku kalibracnemu cielu
             Vector3 toVector = calibrationReference.position - cameraTransform.position;
 
@@ -148,7 +158,7 @@ public class Calibrator : MonoBehaviour
 
             // Rotate the forward vector towards the target direction by one step
             Vector3 newDirection = Vector3.RotateTowards(arSessionOrigin.transform.forward, shiftedToVector, singleStep, 0.0f);
-            
+
             arSessionOrigin.transform.rotation = Quaternion.LookRotation(newDirection);
             yield return null;
         }

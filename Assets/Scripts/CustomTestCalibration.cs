@@ -139,7 +139,7 @@ public class CustomTestCalibration : MonoBehaviour
         Quaternion originalRotation = arCamera.rotation;
         arCamera.rotation = Quaternion.identity;
         Vector3 directionVector = rotation * arCamera.forward * 1.1f;
-        fakeTarget.position = directionVector;
+        fakeTarget.localPosition = directionVector;
 
         arCamera.rotation = originalRotation;
     }
