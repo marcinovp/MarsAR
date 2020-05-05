@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.ARFoundation;
 
 public class CustomTestCalibration : MonoBehaviour
 {
@@ -10,7 +11,8 @@ public class CustomTestCalibration : MonoBehaviour
     public Calibrator calibrator;
     public Transform arSessionOrigin;
     public Transform arCamera;
-    public Transform fakeTarget;
+    public ARTrackedImage fakeTarget;
+    public Transform calibrationReference;
 
     private List<Quaternion> originRotations;
     private List<Quaternion> cameraRotations;
@@ -87,7 +89,7 @@ public class CustomTestCalibration : MonoBehaviour
                     if (makePauses)
                         yield return new WaitForSeconds(1f);
 
-                    calibrator.ProcessTrackedImageChange();
+                    calibrator.Calibrate(fakeTarget, calibrationReference);
 
                     CoroutineWithData cd = new CoroutineWithData(this, WaitForCalibrationFinish());
                     yield return cd.coroutine;
@@ -106,7 +108,7 @@ public class CustomTestCalibration : MonoBehaviour
             }
         }
 
-        Debug.Log(string.Format("CalibrationTest1 result: {0}\nTotal time: {1:0.0}\nSuccessful: {2}/{3}", 
+        Debug.Log(string.Format("CalibrationTest1 result: {0}\nTotal time: {1:0.0}\nSuccessful: {2}/{3}",
             totalCount == successCount ? "Success" : "FAIL", Time.time - startTime, successCount, totalCount));
         yield return null;
     }
@@ -139,7 +141,7 @@ public class CustomTestCalibration : MonoBehaviour
         Quaternion originalRotation = arCamera.rotation;
         arCamera.rotation = Quaternion.identity;
         Vector3 directionVector = rotation * arCamera.forward * 1.1f;
-        fakeTarget.localPosition = directionVector;
+        fakeTarget.transform.localPosition = directionVector;
 
         arCamera.rotation = originalRotation;
     }

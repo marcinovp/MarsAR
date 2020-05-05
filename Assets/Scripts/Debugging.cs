@@ -7,13 +7,15 @@ using UnityEngine.XR.ARFoundation;
 public class Debugging : MonoBehaviour
 {
     public ARSessionOrigin arSessionOrigin;
+    public ARPoseDriverExtended poseDriver;
+    public CameraMovementDriver cameraMovementDriver;
     public Transform targetFakePivot;
     public Transform targetFakeCenter;
     public Transform epoxidPivot;
     public Transform epoxidCenter;
     public Transform marsPlaceholder;
     //public ARTrackedImage trackedImage;
-    public Calibrator calibrator;
+    public CalibrationManager calibrationManager;
 
     public Text debugText;
     public Text debugText2;
@@ -53,9 +55,9 @@ public class Debugging : MonoBehaviour
         string text = string.Format("Relative positions to camera\nepoxid: {0} | {3}\nmars: {1}\nfake target: {2} | {4}",
             VectorToCm(relativeToEpoxid), VectorToCm(relativeToMars), VectorToCm(relativeToFakeTarget), VectorToCm(relativeToEpoxidCenter), VectorToCm(relativeToFakeTargetCenter));
 
-        if (calibrator.trackedImage != null)
+        if (calibrationManager.trackedImage != null)
         {
-            Vector3 relativeToRealTarget = cameraTransform.InverseTransformPoint(calibrator.trackedImage.transform.position);
+            Vector3 relativeToRealTarget = cameraTransform.InverseTransformPoint(calibrationManager.trackedImage.transform.position);
             text += string.Format("\nreal target: {0}", VectorToCm(relativeToRealTarget));
         }
 
@@ -66,5 +68,11 @@ public class Debugging : MonoBehaviour
     {
         string form = string.Format("{0:0}, {1:0}, {2:0}", Mathf.Round(vector.x * 100), Mathf.Round(vector.y * 100), Mathf.Round(vector.z * 100));
         return form;
+    }
+
+    public void SetCustomMovement(bool value)
+    {
+        cameraMovementDriver.enabled = value;
+        poseDriver.allowMovement = !value;
     }
 }
