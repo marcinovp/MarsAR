@@ -7,6 +7,7 @@ public class CameraMovementDriver : MonoBehaviour
 {
     [SerializeField] private bool active = true;
     [SerializeField] private ARSessionOrigin arSessionOrigin;
+    [SerializeField] private Camera arCamera;
 
     public Vector3 totalCorrected;
     public Vector3 cameraPosition;
@@ -15,16 +16,20 @@ public class CameraMovementDriver : MonoBehaviour
     private Transform originTransform;
     private Transform cameraPivotTransform;
     private Vector3 cameraArmOffset;
+    private Vector3 centerPoint;
+
+    private void Awake()
+    {
+        cameraTransform = arCamera.transform;
+        cameraArmOffset = cameraTransform.localPosition;
+        centerPoint = arSessionOrigin.transform.position;
+    }
 
     private void Start()
     {
-        cameraTransform = arSessionOrigin.camera.transform;
         originTransform = arSessionOrigin.transform;
         cameraPivotTransform = cameraTransform.parent;
-
-        cameraArmOffset = cameraTransform.localPosition;
-        //cameraArmOffset = Quaternion.Inverse(cameraTransform.localRotation) * cameraArmOffset;
-
+        
         cameraTransform.localPosition = Vector3.zero;
     }
 
@@ -45,7 +50,12 @@ public class CameraMovementDriver : MonoBehaviour
 
         //cameraTransform.localPosition = cameraTransform.localRotation * cameraArmOffset;
 
-        cameraTransform.localPosition = cameraTransform.localRotation * cameraArmOffset - cameraArmOffset;
+        //cameraTransform.localPosition = cameraTransform.localRotation * cameraArmOffset - cameraArmOffset;
+
+        Vector3 desiredLocalPosition = cameraTransform.localRotation * cameraArmOffset;
+
+        Vector3 desiredCameraPosition = desiredLocalPosition + centerPoint;
+        arSessionOrigin.transform.position -= cameraTransform.position - desiredCameraPosition;
     }
 
     public void Rotate(Quaternion rotation)
