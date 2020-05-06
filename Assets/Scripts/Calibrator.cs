@@ -141,8 +141,8 @@ public class Calibrator : MonoBehaviour
 
         while (true)
         {
-            Vector3 fromVector = trackedImage.transform.position - cameraTransform.position;
-            Vector3 toVector = calibrationReference.position - cameraTransform.position;
+            Vector3 fromVector = trackedImage.transform.position - cameraMover.CenterPoint;
+            Vector3 toVector = calibrationReference.position - cameraMover.CenterPoint;
             Vector3 projectedHFrom = Vector3.ProjectOnPlane(fromVector, Vector3.up);
             Vector3 projectedHTo = Vector3.ProjectOnPlane(toVector, Vector3.up);
 
@@ -174,7 +174,8 @@ public class Calibrator : MonoBehaviour
                 yawRotation = Mathf.Min(Mathf.Abs(yawDifference), maxSpeed * Time.deltaTime) * Mathf.Sign(yawDifference);
             }
 
-            arSessionOrigin.transform.Rotate(0, yawRotation, 0, Space.World);
+            //arSessionOrigin.transform.Rotate(0, yawRotation, 0, Space.World);
+            cameraMover.Rotate(Quaternion.Euler(0, yawRotation, 0));
 
             //float pitchRotation = Mathf.Min(Mathf.Abs(pitchDifference), maxSpeed / 2 * Time.deltaTime) * Mathf.Sign(pitchDifference);
             //arSessionOrigin.transform.Rotate(vNormal, pitchRotation);

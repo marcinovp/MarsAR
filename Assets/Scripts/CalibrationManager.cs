@@ -61,14 +61,6 @@ public class CalibrationManager : MonoBehaviour
             wasChange = true;
             Log("Removed image, count: " + eventArgs.removed.Count);
         }
-
-        //if (wasChange)
-        //{
-        //    ProcessTrackedImageChange();
-        //}
-
-        //if (wasChange)
-        //    OnFloorUpdateEvent(FloorARPlane);
     }
 
     private IEnumerator Control()
@@ -76,9 +68,9 @@ public class CalibrationManager : MonoBehaviour
         // To give time to Calibrator to run its Start function
         yield return new WaitForSeconds(0.2f);
 
-        float minUpdateCycle = 5;
+        float minUpdateCycle = 1;
         float lastUpdateTime = Time.time - minUpdateCycle;
-        float angleErrorThreshold = 2f;
+        float angleErrorThreshold = 1f;
 
         while (true)
         {
@@ -87,15 +79,19 @@ public class CalibrationManager : MonoBehaviour
             else
             {
                 float angle = ErrorAngle(cameraTransform.position, trackedImage.transform.position, calibrationReference.position);
+                debugText.text = string.Format("Error angle: {0}", angle);
 
                 if (angle > angleErrorThreshold)
                 {
                     debugText.text = string.Format("Error angle: {0}, kalibrujem", angle);
                     Calibrate();
-                }
 
-                yield return new WaitForSeconds(minUpdateCycle);
-                debugText.text = "";
+                    yield return new WaitForSeconds(2);
+                }
+                else
+                {
+                    yield return new WaitForSeconds(minUpdateCycle);
+                }
             }
         }
     }
