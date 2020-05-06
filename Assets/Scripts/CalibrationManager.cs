@@ -8,9 +8,8 @@ public class CalibrationManager : MonoBehaviour
 {
     [SerializeField] private ARSessionOrigin arSessionOrigin;
     [SerializeField] private Calibrator calibrator;
-    [SerializeField] private XRReferenceImageLibrary imageLibrary;
+    [SerializeField] private CalibrationReferenceLibrary calibrationReferenceLibrary;
     [SerializeField] private ARTrackedImageManager trackedImageManager;
-    [SerializeField] private Transform calibrationReference;
     [SerializeField] private float angleErrorThreshold = 1f;
 
     [Header("Debug")]
@@ -19,13 +18,14 @@ public class CalibrationManager : MonoBehaviour
     public ARTrackedImage debugTrackedImage;
     public Transform debugCalibrationReference;
 
+    [Header("Showing")]
     private Transform cameraTransform;
+    private Transform calibrationReference;
     public ARTrackedImage trackedImage;
 
     void Start()
     {
         cameraTransform = arSessionOrigin.camera.transform;
-        trackedImageManager.trackedImagesChanged += OnTrackedImagesChanged;
         StartCoroutine(Control());
     }
 
@@ -39,31 +39,6 @@ public class CalibrationManager : MonoBehaviour
         }
     }
 
-    private void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs eventArgs)
-    {
-        bool wasChange = false;
-
-        foreach (var plane in eventArgs.added)
-        {
-            trackedImage = plane;
-            wasChange = true;
-            Log("Added image, count: " + eventArgs.added.Count);
-        }
-
-        foreach (var plane in eventArgs.updated)
-        {
-            wasChange = true;
-            Log("Changed image, count: " + eventArgs.updated.Count);
-        }
-
-        foreach (var plane in eventArgs.removed)
-        {
-            trackedImage = null;
-            wasChange = true;
-            Log("Removed image, count: " + eventArgs.removed.Count);
-        }
-    }
-
     private IEnumerator Control()
     {
         // To give time to Calibrator to run its Start function
@@ -74,28 +49,24 @@ public class CalibrationManager : MonoBehaviour
 
         while (true)
         {
+            trackedImage = GetBestTrackingImage();
+
             if (trackedImage == null)
+            {
+                calibrationReference = null;
+                LogOnScreen(string.Format("No suitable image tracked"));
                 yield return null;
+            }
             else
             {
                 string screenLogMessage = "";
 
-                Vector3 screenPoint = arSessionOrigin.camera.WorldToViewportPoint(trackedImage.transform.position);
-                bool onScreen = screenPoint.z > 0 && screenPoint.x > 0 && screenPoint.x < 1 && screenPoint.y > 0 && screenPoint.y < 1;
-
-                if (!onScreen || trackedImage.trackingState != TrackingState.Tracking)
-                {
-                    screenLogMessage += string.Format("No suitable image tracked");
-                    LogOnScreen(screenLogMessage);
-
-                    yield return null;
-                    continue;
-                }
+                calibrationReference = calibrationReferenceLibrary.GetCalibrationPoint(trackedImage);
 
                 float angle = Mathf.Abs(calibrator.GetErrorAngle(trackedImage, calibrationReference));
                 if (angle > angleErrorThreshold)
                 {
-                    screenLogMessage += string.Format("Error angle: {0}, kalibrujem", angle);
+                    screenLogMessage += string.Format("Error angle: {0}, kalibrujem pre {1}", angle, trackedImage.referenceImage.name);
                     LogOnScreen(screenLogMessage);
 
                     Calibrate();
@@ -104,13 +75,38 @@ public class CalibrationManager : MonoBehaviour
                 }
                 else
                 {
-                    screenLogMessage += string.Format("Error angle: {0}", angle);
+                    screenLogMessage += string.Format("Error angle: {0} pri {1}", angle, trackedImage.referenceImage.name);
                     LogOnScreen(screenLogMessage);
 
                     yield return new WaitForSeconds(minUpdateCycle);
                 }
             }
         }
+    }
+
+    private ARTrackedImage GetBestTrackingImage()
+    {
+        TrackableCollection<ARTrackedImage> trackables = trackedImageManager.trackables;
+        ARTrackedImage winner = null;
+        Vector3 winningDistance = Vector3.one * 1000;
+
+        foreach (ARTrackedImage trackedImage in trackables)
+        {
+            if (trackedImage.trackingState != TrackingState.Tracking)
+                continue;
+
+            Vector3 screenPoint = arSessionOrigin.camera.WorldToViewportPoint(trackedImage.transform.position);
+            bool onScreen = screenPoint.z > 0 && screenPoint.x > 0 && screenPoint.x < 1 && screenPoint.y > 0 && screenPoint.y < 1;
+
+            screenPoint.z = 0;
+            if (onScreen && screenPoint.sqrMagnitude < winningDistance.sqrMagnitude)
+            {
+                winner = trackedImage;
+                winningDistance = screenPoint;
+            }
+        }
+
+        return winner;
     }
 
     public void Calibrate()
@@ -127,7 +123,6 @@ public class CalibrationManager : MonoBehaviour
     {
         calibrator.StopCalibration();
     }
-
 
     private void Log(string message)
     {
