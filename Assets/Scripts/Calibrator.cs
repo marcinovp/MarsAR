@@ -6,7 +6,6 @@ public class Calibrator : MonoBehaviour
 {
     [SerializeField] private ARSessionOrigin arSessionOrigin;
     [SerializeField] private CameraMovementDriver cameraMover;
-    //[SerializeField] private Transform calibrationReference;
     [SerializeField] private int strategy;
 
     [Header("Debug")]
@@ -141,12 +140,12 @@ public class Calibrator : MonoBehaviour
 
         while (true)
         {
-            Vector3 fromVector = trackedImage.transform.position - cameraMover.CenterPoint;
-            Vector3 toVector = calibrationReference.position - cameraMover.CenterPoint;
-            Vector3 projectedHFrom = Vector3.ProjectOnPlane(fromVector, Vector3.up);
-            Vector3 projectedHTo = Vector3.ProjectOnPlane(toVector, Vector3.up);
+            //Vector3 fromVector = trackedImage.transform.position - cameraMover.CenterPoint;
+            //Vector3 toVector = calibrationReference.position - cameraMover.CenterPoint;
+            //Vector3 projectedHFrom = Vector3.ProjectOnPlane(fromVector, Vector3.up);
+            //Vector3 projectedHTo = Vector3.ProjectOnPlane(toVector, Vector3.up);
 
-            float yawDifference = Vector3.SignedAngle(projectedHFrom, projectedHTo, Vector3.up);
+            float yawDifference = GetErrorAngle(trackedImage, calibrationReference);
             float yawRotation = 0;
 
             //float pitchDifference = 0;
@@ -159,7 +158,7 @@ public class Calibrator : MonoBehaviour
             //    //errorAngle = Vector3.Angle(projectedVFrom, projectedVTo);
             //}
 
-            errorAngle = Vector3.Angle(projectedHFrom, projectedHTo);
+            errorAngle = Mathf.Abs(yawDifference);
 
             if (exit)
                 break;
@@ -185,6 +184,31 @@ public class Calibrator : MonoBehaviour
         }
 
         Log("Uhlova chyba: " + errorAngle);
+    }
+
+    public float GetErrorAngle(ARTrackedImage trackedImage, Transform calibrationReference)
+    {
+        switch (strategy)
+        {
+            case 0:
+                throw new System.NotImplementedException("GetErrorAngle is not implemented for set strategy");
+            case 1:
+                throw new System.NotImplementedException("GetErrorAngle is not implemented for set strategy");
+            case 2:
+                return GetErrorAngle3(trackedImage, calibrationReference);
+            default:
+                throw new System.NotImplementedException("GetErrorAngle is not implemented for set strategy");
+        }
+    }
+
+    private float GetErrorAngle3(ARTrackedImage trackedImage, Transform calibrationReference)
+    {
+        Vector3 fromVector = trackedImage.transform.position - cameraMover.CenterPoint;
+        Vector3 toVector = calibrationReference.position - cameraMover.CenterPoint;
+        Vector3 projectedHFrom = Vector3.ProjectOnPlane(fromVector, Vector3.up);
+        Vector3 projectedHTo = Vector3.ProjectOnPlane(toVector, Vector3.up);
+
+        return Vector3.SignedAngle(projectedHFrom, projectedHTo, Vector3.up);
     }
 
     public void StopCalibration()

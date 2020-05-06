@@ -11,10 +11,11 @@ public class CalibrationManager : MonoBehaviour
     [SerializeField] private XRReferenceImageLibrary imageLibrary;
     [SerializeField] private ARTrackedImageManager trackedImageManager;
     [SerializeField] private Transform calibrationReference;
-    public Text debugText;
+    [SerializeField] private float angleErrorThreshold = 1f;
 
     [Header("Debug")]
     public bool debug;
+    public Text debugText;
     public ARTrackedImage debugTrackedImage;
     public Transform debugCalibrationReference;
 
@@ -68,9 +69,8 @@ public class CalibrationManager : MonoBehaviour
         // To give time to Calibrator to run its Start function
         yield return new WaitForSeconds(0.2f);
 
-        float minUpdateCycle = 1;
+        float minUpdateCycle = 1f;
         float lastUpdateTime = Time.time - minUpdateCycle;
-        float angleErrorThreshold = 1f;
 
         while (true)
         {
@@ -78,18 +78,35 @@ public class CalibrationManager : MonoBehaviour
                 yield return null;
             else
             {
-                float angle = ErrorAngle(cameraTransform.position, trackedImage.transform.position, calibrationReference.position);
-                debugText.text = string.Format("Error angle: {0}", angle);
+                string screenLogMessage = "";
 
+                Vector3 screenPoint = arSessionOrigin.camera.WorldToViewportPoint(trackedImage.transform.position);
+                bool onScreen = screenPoint.z > 0 && screenPoint.x > 0 && screenPoint.x < 1 && screenPoint.y > 0 && screenPoint.y < 1;
+
+                if (!onScreen || trackedImage.trackingState != TrackingState.Tracking)
+                {
+                    screenLogMessage += string.Format("No suitable image tracked");
+                    LogOnScreen(screenLogMessage);
+
+                    yield return null;
+                    continue;
+                }
+
+                float angle = Mathf.Abs(calibrator.GetErrorAngle(trackedImage, calibrationReference));
                 if (angle > angleErrorThreshold)
                 {
-                    debugText.text = string.Format("Error angle: {0}, kalibrujem", angle);
+                    screenLogMessage += string.Format("Error angle: {0}, kalibrujem", angle);
+                    LogOnScreen(screenLogMessage);
+
                     Calibrate();
 
                     yield return new WaitForSeconds(2);
                 }
                 else
                 {
+                    screenLogMessage += string.Format("Error angle: {0}", angle);
+                    LogOnScreen(screenLogMessage);
+
                     yield return new WaitForSeconds(minUpdateCycle);
                 }
             }
@@ -111,18 +128,16 @@ public class CalibrationManager : MonoBehaviour
         calibrator.StopCalibration();
     }
 
-    private float ErrorAngle(Vector3 cameraPosition, Vector3 trackedImagePosition, Vector3 calibrationReferencePosition)
-    {
-        Vector3 fromVector = trackedImagePosition - cameraPosition;
-        Vector3 toVector = calibrationReferencePosition - cameraPosition;
-        float errorAngle = Vector3.Angle(fromVector, toVector);
-
-        return errorAngle;
-    }
 
     private void Log(string message)
     {
         if (debug)
             Debug.Log(message);
+    }
+
+    private void LogOnScreen(string message)
+    {
+        if (debug && debugText != null)
+            debugText.text = message;
     }
 }
