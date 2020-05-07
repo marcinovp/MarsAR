@@ -6,10 +6,11 @@ using UnityEngine.XR.ARFoundation;
 
 public class NastavovacKameryWindow : EditorWindow
 {
-    private CameraMovementDriver cameraMovementDriver;
     private CalibrationManager calibrationManager;
     private Calibrator calibrator;
     private Debugging debugging;
+    private CustomTestCalibration tests;
+
     private List<ARSessionOrigin> arOrigins;
     private List<EditorBuildSettingsScene> videoScenes;
 
@@ -72,12 +73,12 @@ public class NastavovacKameryWindow : EditorWindow
         }
         EditorGUILayout.EndVertical();
         EditorGUILayout.Space(30);  // column separator
-        
+
         EditorGUILayout.BeginVertical();
-        EditorGUILayout.ObjectField("Camera movement driver", cameraMovementDriver, typeof(CameraMovementDriver), true, GUILayout.MaxWidth(objectFieldMaxWidth));
         EditorGUILayout.ObjectField("Calibration manager", calibrationManager, typeof(CalibrationManager), true, GUILayout.MaxWidth(objectFieldMaxWidth));
         EditorGUILayout.ObjectField("Calibrator", calibrator, typeof(Calibrator), true, GUILayout.MaxWidth(objectFieldMaxWidth));
         EditorGUILayout.ObjectField("Debugging", debugging, typeof(Debugging), true, GUILayout.MaxWidth(objectFieldMaxWidth));
+        EditorGUILayout.ObjectField("Tests", tests, typeof(CustomTestCalibration), true, GUILayout.MaxWidth(objectFieldMaxWidth));
 
 
 
@@ -92,7 +93,7 @@ public class NastavovacKameryWindow : EditorWindow
         Undo.IncrementCurrentGroup();
         Undo.SetCurrentGroupName(string.Format("Set active camera: {0}", index));
         var undoGroupIndex = Undo.GetCurrentGroup();
-        
+
         for (int i = 0; i < arOrigins.Count; i++)
         {
             var scene = videoScenes[i];
@@ -105,12 +106,7 @@ public class NastavovacKameryWindow : EditorWindow
         ApplySceneSettings();
 
         var activeAROrigin = arOrigins[index];
-
-        Undo.RecordObject(cameraMovementDriver, "");
-        var movementDriverSerializedObj = new SerializedObject(cameraMovementDriver);
-        movementDriverSerializedObj.FindProperty("arSessionOrigin").objectReferenceValue = activeAROrigin;
-        movementDriverSerializedObj.FindProperty("arCamera").objectReferenceValue = activeAROrigin.camera;
-        movementDriverSerializedObj.ApplyModifiedProperties();
+        var cameraMovementDriver = activeAROrigin.GetComponent<CameraMovementDriver>();
 
         Undo.RecordObject(calibrationManager, "");
         var calibManagerSerializedObj = new SerializedObject(calibrationManager);
@@ -121,13 +117,22 @@ public class NastavovacKameryWindow : EditorWindow
         Undo.RecordObject(calibrator, "");
         var calibratorSerializedObj = new SerializedObject(calibrator);
         calibratorSerializedObj.FindProperty("arSessionOrigin").objectReferenceValue = activeAROrigin;
+        calibratorSerializedObj.FindProperty("cameraMover").objectReferenceValue = cameraMovementDriver;
         calibratorSerializedObj.ApplyModifiedProperties();
 
         Undo.RecordObject(debugging, "");
         var debuggingSerializedObj = new SerializedObject(debugging);
         debuggingSerializedObj.FindProperty("arSessionOrigin").objectReferenceValue = activeAROrigin;
-        movementDriverSerializedObj.FindProperty("arCamera").objectReferenceValue = activeAROrigin.camera.GetComponent<ARPoseDriverExtended>();
+        debuggingSerializedObj.FindProperty("poseDriver").objectReferenceValue = activeAROrigin.camera.GetComponent<ARPoseDriverExtended>();
+        debuggingSerializedObj.FindProperty("cameraMovementDriver").objectReferenceValue = cameraMovementDriver;
         debuggingSerializedObj.ApplyModifiedProperties();
+
+        Undo.RecordObject(tests, "");
+        var testsSerializedObj = new SerializedObject(tests);
+        testsSerializedObj.FindProperty("arSessionOrigin").objectReferenceValue = activeAROrigin.transform;
+        testsSerializedObj.FindProperty("arCamera").objectReferenceValue = activeAROrigin.camera.transform;
+        testsSerializedObj.FindProperty("fakeTarget").objectReferenceValue = activeAROrigin.camera.GetComponentInChildren<ARTrackedImage>();
+        testsSerializedObj.ApplyModifiedProperties();
 
         Undo.CollapseUndoOperations(undoGroupIndex);
     }
@@ -136,10 +141,10 @@ public class NastavovacKameryWindow : EditorWindow
     {
         arOrigins = null;
 
-        cameraMovementDriver = FindObjectOfType<CameraMovementDriver>();
         calibrationManager = FindObjectOfType<CalibrationManager>();
         calibrator = FindObjectOfType<Calibrator>();
         debugging = FindObjectOfType<Debugging>();
+        tests = FindObjectOfType<CustomTestCalibration>();
 
         arOrigins = GetAllObjectsOnlyInScene<ARSessionOrigin>();
         arOrigins.Sort((a, b) => a.name.CompareTo(b.name));
@@ -176,7 +181,7 @@ public class NastavovacKameryWindow : EditorWindow
             if (updatedAsset != null)
                 sceneAsset.enabled = updatedAsset.enabled;
         }
-        
+
         EditorBuildSettings.scenes = editorBuildSettingsScenes.ToArray();
     }
 }

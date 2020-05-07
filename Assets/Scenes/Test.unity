@@ -938,7 +938,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1596533214}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &460894919
 MonoBehaviour:
@@ -954,7 +954,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   arSessionOrigin: {fileID: 1602320316}
   poseDriver: {fileID: 1508858016}
-  cameraMovementDriver: {fileID: 1066393076}
+  cameraMovementDriver: {fileID: 6784588088236094039}
   targetFakePivot: {fileID: 1639563406}
   targetFakeCenter: {fileID: 527951895}
   epoxidPivot: {fileID: 735346270}
@@ -1862,7 +1862,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1066393076}
+      - m_Target: {fileID: 0}
         m_MethodName: ActivateLimiter
         m_Mode: 0
         m_Arguments:
@@ -1881,6 +1881,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 676839929}
     m_Modifications:
+    - target: {fileID: 5438086654160156111, guid: 21f3fa24dda72fe43ba44b5a8c1e7f54,
+        type: 3}
+      propertyPath: centerpointVisualisation
+      value: 
+      objectReference: {fileID: 1512683628}
     - target: {fileID: 6784588089754502635, guid: 21f3fa24dda72fe43ba44b5a8c1e7f54,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2185,7 +2190,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1596533214}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1030675347
 MonoBehaviour:
@@ -2204,53 +2209,6 @@ MonoBehaviour:
   - {fileID: 839676303}
   - {fileID: 307568954}
   - {fileID: 1274427613}
---- !u!1 &1066393074
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1066393075}
-  - component: {fileID: 1066393076}
-  m_Layer: 0
-  m_Name: Camera movement driver
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1066393075
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1066393074}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1596533214}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1066393076
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1066393074}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1d9dd8fe73f49f4aaa238bd085872fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  active: 1
-  arSessionOrigin: {fileID: 1602320316}
-  arCamera: {fileID: 1508858013}
-  centerpointVisualisation: {fileID: 1512683628}
 --- !u!1 &1080449092
 GameObject:
   m_ObjectHideFlags: 0
@@ -2749,7 +2707,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1596533214}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1417580285
 MonoBehaviour:
@@ -3231,12 +3189,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30158715ff59ef442aeceebc655d1b73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!20 &1508858013 stripped
-Camera:
-  m_CorrespondingSourceObject: {fileID: 6784588089722923723, guid: 21f3fa24dda72fe43ba44b5a8c1e7f54,
-    type: 3}
-  m_PrefabInstance: {fileID: 6784588088236094038}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1508858016 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6784588089722923766, guid: 21f3fa24dda72fe43ba44b5a8c1e7f54,
@@ -3359,6 +3311,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 676839929}
     m_Modifications:
+    - target: {fileID: 5438086654160156111, guid: 21f3fa24dda72fe43ba44b5a8c1e7f54,
+        type: 3}
+      propertyPath: centerpointVisualisation
+      value: 
+      objectReference: {fileID: 1512683628}
     - target: {fileID: 6784588089754502635, guid: 21f3fa24dda72fe43ba44b5a8c1e7f54,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -3674,7 +3631,6 @@ Transform:
   m_Children:
   - {fileID: 966160868}
   - {fileID: 598187904}
-  - {fileID: 1066393075}
   - {fileID: 1417580284}
   - {fileID: 2075240461}
   - {fileID: 460894918}
@@ -3869,7 +3825,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1596533214}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2075240462
 MonoBehaviour:
@@ -3884,7 +3840,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   arSessionOrigin: {fileID: 1602320316}
-  cameraMover: {fileID: 1066393076}
+  cameraMover: {fileID: 6784588088236094039}
   strategy: 2
   debug: 0
 --- !u!1001 &2082092457
@@ -4227,6 +4183,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 676839929}
     m_Modifications:
+    - target: {fileID: 5438086654160156111, guid: 21f3fa24dda72fe43ba44b5a8c1e7f54,
+        type: 3}
+      propertyPath: centerpointVisualisation
+      value: 
+      objectReference: {fileID: 1512683628}
     - target: {fileID: 6784588089754502635, guid: 21f3fa24dda72fe43ba44b5a8c1e7f54,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -4289,3 +4250,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21f3fa24dda72fe43ba44b5a8c1e7f54, type: 3}
+--- !u!114 &6784588088236094039 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5438086654160156111, guid: 21f3fa24dda72fe43ba44b5a8c1e7f54,
+    type: 3}
+  m_PrefabInstance: {fileID: 6784588088236094038}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1d9dd8fe73f49f4aaa238bd085872fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
