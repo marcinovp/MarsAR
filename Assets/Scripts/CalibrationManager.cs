@@ -18,10 +18,9 @@ public class CalibrationManager : MonoBehaviour
     public ARTrackedImage debugTrackedImage;
     public Transform debugCalibrationReference;
 
-    [Header("Showing")]
     private Transform cameraTransform;
     private Transform calibrationReference;
-    public ARTrackedImage trackedImage;
+    private ARTrackedImage trackedImage;
 
     void Start()
     {

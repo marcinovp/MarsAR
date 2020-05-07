@@ -55,11 +55,11 @@ public class Debugging : MonoBehaviour
         string text = string.Format("Relative positions to camera\nepoxid: {0} | {3}\nmars: {1}\nfake target: {2} | {4}",
             VectorToCm(relativeToEpoxid), VectorToCm(relativeToMars), VectorToCm(relativeToFakeTarget), VectorToCm(relativeToEpoxidCenter), VectorToCm(relativeToFakeTargetCenter));
 
-        if (calibrationManager.trackedImage != null)
-        {
-            Vector3 relativeToRealTarget = cameraTransform.InverseTransformPoint(calibrationManager.trackedImage.transform.position);
-            text += string.Format("\nreal target: {0}", VectorToCm(relativeToRealTarget));
-        }
+        //if (calibrationManager.trackedImage != null)
+        //{
+        //    Vector3 relativeToRealTarget = cameraTransform.InverseTransformPoint(calibrationManager.trackedImage.transform.position);
+        //    text += string.Format("\nreal target: {0}", VectorToCm(relativeToRealTarget));
+        //}
 
         uiText.text = text;
     }
