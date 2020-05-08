@@ -24,7 +24,6 @@ public class NastavovacKameryWindow : EditorWindow
     public void OnEnable()
     {
         FindScripts();
-        Debug.Log("On Enable");
     }
 
     private void OnGUI()
